@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ReCircuit – E-Waste Decision and Pickup Planner</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Source+Sans+3:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef2f3;--card:#fff;--ink:#12242b;--mute:#566a73;--line:#d6dfe3;--acc:#0f6e7c;--accbg:#e0f1f3;--warn:#8a5a0a;--warnbg:#fbefd5;--bad:#a8322a;--badbg:#f9e0dd;--ok:#1d7a46;--hd:#0b3b45;--hdink:#fff;--btn:#fff;
+box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1519;--card:#13232a;--ink:#e6eef1;--mute:#93a6af;--line:#28404a;--acc:#5cc3d1;--accbg:#12383f;--warn:#f0c36d;--warnbg:#3a2d10;--bad:#ff9a90;--badbg:#431d19;--ok:#6fd49a;--hd:#08262d;--btn:#0b1519}}
+:root[data-theme="dark"]{--bg:#0b1519;--card:#13232a;--ink:#e6eef1;--mute:#93a6af;--line:#28404a;--acc:#5cc3d1;--accbg:#12383f;--warn:#f0c36d;--warnbg:#3a2d10;--bad:#ff9a90;--badbg:#431d19;--ok:#6fd49a;--hd:#08262d;--btn:#0b1519}
+html{scroll-behavior:smooth;scroll-padding-top:calc(64px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Source Sans 3",system-ui,sans-serif;padding-bottom:env(safe-area-inset-bottom,0px)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--hd);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--hd);color:var(--hdink)}
+.nav{max-width:1040px;margin:0 auto;padding:0 16px;height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.brand{display:flex;align-items:center;gap:10px;font:800 1.2rem "Bricolage Grotesque",sans-serif;color:inherit;text-decoration:none}
+.nav nav{display:flex;gap:18px;font-size:.95rem}.nav nav a{color:inherit;text-decoration:none;opacity:.85}.nav nav a:hover{opacity:1;text-decoration:underline}
+.hero{background:var(--hd);color:var(--hdink);padding:36px 16px 70px}
+.hero div{max-width:1040px;margin:0 auto}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0 0 8px;line-height:1.15}
+h1{font-size:2.3rem;font-weight:800;max-width:20ch}.hero p{max-width:60ch;opacity:.9;margin:8px 0 0}
+h2{font-size:1.3rem;font-weight:600}
+main{max-width:1040px;margin:-44px auto 0;padding:0 16px 40px}
+section{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:22px;margin-bottom:18px}
+.two{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:18px}.two section{margin:0}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.fields .full{grid-column:1/-1}
+label{display:block;font-weight:600;font-size:.9rem}
+select,input[type=number]{width:100%;box-sizing:border-box;margin-top:4px;padding:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:inherit}
+.chk{display:flex;gap:8px;align-items:center;margin-top:14px;font-weight:400}
+button{margin-top:16px;padding:11px 18px;border:0;border-radius:6px;background:var(--acc);color:var(--btn);font-family:inherit;font-weight:600;font-size:1rem;cursor:pointer}
+button.alt{background:transparent;color:var(--acc);border:1px solid var(--acc)}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.opt{display:grid;grid-template-columns:150px 1fr 90px;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.opt.best{font-weight:600}.opt span:last-child{text-align:right;font-size:.9rem}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--acc)}.best .bar i{background:var(--ok)}
+.note{padding:11px 13px;border-radius:6px;margin:0 0 12px;background:var(--accbg)}.note.bad{background:var(--badbg);color:var(--bad)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:14px 0}
+.stat{border:1px solid var(--line);border-radius:8px;padding:12px}.stat b{display:block;font:800 1.5rem "Bricolage Grotesque",sans-serif}.stat span{color:var(--mute);font-size:.85rem}
+.area{padding:12px 0;border-bottom:1px solid var(--line)}.area .top{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.tag{font-size:.85rem;padding:2px 10px;border-radius:10px;background:var(--warnbg);color:var(--warn)}.tag.go{background:var(--accbg);color:var(--ok)}
+small,.mute{color:var(--mute)}.scroll{overflow-x:auto}
+footer{max-width:1040px;margin:0 auto;padding:0 16px 32px;color:var(--mute);font-size:.88rem}
+@media (max-width:820px){.two{grid-template-columns:1fr}.nav nav{display:none}h1{font-size:1.8rem}.opt{grid-template-columns:1fr}.opt span:last-child{text-align:left}}
+</style>
+</head>
+<body>
+<header><div class="nav"><a class="brand" href="#top"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7l3-2.7"/><path d="M16 16h5v5"/></svg>ReCircuit</a>
+<nav><a href="#check">Check a device</a><a href="#pickup">Pickup planner</a><a href="#impact">Impact</a><a href="#how">How it works</a></nav></div></header>
+<div class="hero" id="top"><div><h1>Give every old device the right next life</h1>
+<p>ReCircuit ranks repair, reuse and recycling by environmental impact, shows the materials inside, and groups recycling requests into one pickup per hostel or area.</p></div></div>
+<main>
+<div class="two">
+<section id="check"><h2>Check a device</h2><p class="mute">Details of the item you want to dispose of.</p>
+<div class="fields">
+<label class="full">Device<select id="dev"></select></label>
+<label>Age (years)<input id="age" type="number" min="0" max="20" value="4"></label>
+<label>Quantity<input id="qty" type="number" min="1" max="20" value="1"></label>
+<label>Condition<select id="cond"><option value="working">Works fine</option><option value="partly">Partly working</option><option value="dead">Dead</option></select></label>
+<label>Hostel or area<select id="area"></select></label>
+</div>
+<label class="chk" id="dmgrow"><input type="checkbox" id="dmg"> Battery is swollen, hot or leaking</label>
+<button id="go">Get best route</button></section>
+<section aria-live="polite"><h2>Recommendation</h2><div id="res"><p class="mute empty">Enter a device on the left and press Get best route. The ranked options, materials and CO2 saving appear here.</p></div></section>
+</div>
+<section id="pickup" style="margin-top:18px"><h2>Community pickup planner</h2>
+<p class="mute">A pickup is proposed once an area reaches <b id="th"></b> items for recycling. One trip replaces many small ones.</p>
+<div id="areas"></div><button class="alt" id="reset">Reset sample data</button></section>
+<section id="impact"><h2>Impact so far</h2><div class="stats" id="tot"></div></section>
+<section id="how"><h2>How the system works</h2><div class="scroll"><pre class="mermaid">
+flowchart TD
+A[User enters device type, age, condition, quantity, area] --> B[Rule table scores repair, resell or donate, recycle, dump]
+B --> C{Battery swollen or leaking?}
+C -- Yes --> D[Force safe recycling with handling warning]
+C -- No --> E[Rank routes, reuse above recycling]
+D --> F[Show materials inside and CO2 avoided]
+E --> F
+F --> G{Best route is recycling?}
+G -- Yes --> H[Add to area batch]
+G -- No --> I[Show reuse or repair advice]
+H --> J{Batch reached minimum quantity?}
+J -- Yes --> K[Propose one pickup date and send list to authorised recycler]
+J -- No --> L[Keep collecting]
+</pre></div></section>
+</main>
+<footer>Prototype for an EVS assignment. Sample data only: material amounts and CO2 factors are illustrative estimates, and the recycler is a placeholder for a CPCB-listed unit.</footer>
+<script>
+var TH=10;var EMPTY='<p class="mute empty">Enter a device on the left and press Get best route. The ranked options, materials and CO2 saving appear here.</p>';
+var DEV={
+phone:{n:"Smartphone",kg:.18,co2:60,bat:1,m:{Copper:15,Aluminium:25,Cobalt:5,Gold:.03}},
+laptop:{n:"Laptop",kg:2.2,co2:300,bat:1,m:{Copper:130,Aluminium:300,Cobalt:60,Gold:.2}},
+tablet:{n:"Tablet",kg:.5,co2:100,bat:1,m:{Copper:30,Aluminium:90,Cobalt:15,Gold:.05}},
+tv:{n:"LED TV",kg:8,co2:400,bat:0,m:{Copper:400,Aluminium:900,Cobalt:0,Gold:.1}},
+bank:{n:"Power bank",kg:.25,co2:20,bat:1,m:{Copper:10,Aluminium:20,Cobalt:25,Gold:0}},
+chg:{n:"Charger and cables",kg:.15,co2:5,bat:0,m:{Copper:40,Aluminium:2,Cobalt:0,Gold:0}}};
+var FAC={"Repair":.6,"Resell or donate":.5,"Authorised recycling":.15,"Dump in garbage":0};
+var AREAS=["Hostel A","Hostel B","Hostel C","Staff quarters"];
+var SEED={reqs:{"Hostel A":{n:8,kg:6},"Hostel B":{n:3,kg:2},"Hostel C":{n:0,kg:0},"Staff quarters":{n:4,kg:5}},tot:{n:15,kg:13,co2:60,cu:420}};
+var S=JSON.parse(JSON.stringify(SEED)),last=null;
+function $(i){return document.getElementById(i)}
+function fill(){
+ $("dev").innerHTML=Object.keys(DEV).map(function(k){return '<option value="'+k+'">'+DEV[k].n+'</option>'}).join("");
+ $("area").innerHTML=AREAS.map(function(a){return '<option>'+a+'</option>'}).join("");
+ $("th").textContent=TH;
+}
+function scoreIt(c,age,dmg){
+ var s;
+ if(c==="working")s={"Repair":20,"Resell or donate":90,"Authorised recycling":40,"Dump in garbage":0};
+ else if(c==="partly")s={"Repair":85,"Resell or donate":55,"Authorised recycling":50,"Dump in garbage":0};
+ else s={"Repair":60,"Resell or donate":15,"Authorised recycling":85,"Dump in garbage":0};
+ if(age>8){s["Repair"]-=25;s["Resell or donate"]-=25}
+ if(c==="dead"&&age>5)s["Repair"]-=30;
+ if(dmg){s["Repair"]=0;s["Resell or donate"]=0;s["Authorised recycling"]=100}
+ for(var k in s)if(s[k]<0)s[k]=0;
+ return s;
+}
+var WHY={"Repair":"A repair keeps the device in use and avoids the footprint of making a new one.","Resell or donate":"The device still works, so passing it on saves the most resources.","Authorised recycling":"It cannot be reused safely, so an authorised recycler recovers the metals and handles the toxic parts.","Dump in garbage":""};
+function run(){
+ var k=$("dev").value,d=DEV[k],age=+$("age").value||0,c=$("cond").value,q=Math.max(1,+$("qty").value||1);
+ var dmg=d.bat&&$("dmg").checked;
+ var s=scoreIt(c,age,dmg);
+ var list=Object.keys(s).sort(function(a,b){return s[b]-s[a]});
+ var best=list[0],co2=d.co2*q*FAC[best];
+ var h='<div class="note">Best route: <b>'+best+'</b>. '+WHY[best]+'</div>';
+ if(dmg)h+='<div class="note bad">Damaged battery: do not charge or crush it. Keep it in a dry, non-flammable container away from heat and drop it only in the separate special-handling box.</div>';
+ h+=list.map(function(o,i){return '<div class="opt'+(i?'':' best')+'"><span>'+o+'</span><div class="bar"><i style="width:'+s[o]+'%"></i></div><span>'+Math.round(d.co2*q*FAC[o])+' kg CO2</span></div>'}).join("");
+ var mats=Object.keys(d.m).filter(function(x){return d.m[x]>0}).map(function(x){return x+": "+(d.m[x]*q*.8).toFixed(d.m[x]<1?2:0)+" g"}).join(", ");
+ h+='<div class="stats"><div class="stat"><b>'+Math.round(co2)+' kg</b><span>CO2 avoided on best route</span></div><div class="stat"><b>'+(d.kg*q).toFixed(1)+' kg</b><span>e-waste kept out of landfill</span></div></div>';
+ h+='<p><b>Inside this batch (about 80% recoverable by recycling):</b><br>'+mats+'</p>';
+ last={area:$("area").value,q:q,kg:d.kg*q,co2:co2,cu:d.m.Copper*q*.8};
+ if(best==="Authorised recycling")h+='<button id="add">Add '+q+' item(s) to '+last.area+' pickup batch</button>';
+ else h+='<p class="mute">This item goes through repair or reuse, so it does not join the recycling batch.</p>';
+ $("res").innerHTML=h;
+ if($("add"))$("add").onclick=add;
+}
+function add(){
+ var r=S.reqs[last.area];r.n+=last.q;r.kg+=last.kg;
+ S.tot.n+=last.q;S.tot.kg+=last.kg;S.tot.co2+=last.co2;S.tot.cu+=last.cu;
+ $("add").outerHTML='<div class="note">Added to the '+last.area+' batch.</div>';
+ draw();
+}
+function nextSat(){var d=new Date();d.setDate(d.getDate()+((6-d.getDay()+7)%7||7));return d.toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}
+function draw(){
+ $("areas").innerHTML=AREAS.map(function(a){
+  var r=S.reqs[a],p=Math.min(100,r.n/TH*100),ready=r.n>=TH;
+  return '<div class="area"><div class="top"><b>'+a+'</b><span class="tag'+(ready?' go':'')+'">'+(ready?'Pickup ready':(TH-r.n)+' more needed')+'</span></div><div class="bar"><i style="width:'+p+'%"></i></div><small>'+r.n+' items, '+r.kg.toFixed(1)+' kg'+(ready?'. Proposed pickup: '+nextSat()+'. List sent to a sample authorised recycler (replace with a CPCB-listed unit).':'')+'</small></div>';
+ }).join("");
+ var t=S.tot;
+ $("tot").innerHTML=[[t.n,"items handled"],[t.kg.toFixed(0)+" kg","e-waste collected"],[Math.round(t.co2)+" kg","CO2 avoided"],[(t.cu/1000).toFixed(2)+" kg","copper recoverable"]].map(function(x){return '<div class="stat"><b>'+x[0]+'</b><span>'+x[1]+'</span></div>'}).join("");
+}
+function bat(){$("dmgrow").style.display=DEV[$("dev").value].bat?"flex":"none"}
+fill();bat();draw();
+$("dev").onchange=bat;$("go").onclick=run;
+$("reset").onclick=function(){S=JSON.parse(JSON.stringify(SEED));$("res").innerHTML=EMPTY;draw()};
+</script>
+</body>
+</html>
